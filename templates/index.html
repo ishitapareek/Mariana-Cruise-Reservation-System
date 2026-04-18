@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mariana — Luxury Cruise Reservations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/icon.ico') }}">
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav id="navbar">
+  <a class="nav-logo" onclick="showPage('home')">MARIANA</a>
+  <div class="nav-links">
+    <a onclick="showPage('home')">Home</a>
+    <a onclick="showPage('cruises')">Cruises</a>
+    <a onclick="showPage('suites')">Suites</a>
+    <a onclick="showPage('activities')">Activities</a>
+    <a onclick="showPage('reservations')">My Bookings</a>
+    <a id="nav-user" onclick="showPage('auth')" class="nav-cta">Sign In</a>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="float-shape" style="width:200px;height:200px;background:rgba(239,165,196,0.08);top:15%;left:8%;animation-delay:-2s;"></div>
+    <div class="float-shape" style="width:120px;height:120px;background:rgba(105,166,152,0.12);top:60%;right:12%;animation-delay:-4s;"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Luxury Cruise Experiences</p>
+      <h1 class="hero-title">Sail into<br><em>Extraordinary</em></h1>
+      <p class="hero-subtitle">Discover the world's most breathtaking destinations aboard our world-class cruise liners. Every voyage, a story worth telling.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="showPage('cruises')">Explore Cruises</button>
+        <button id="create-account-btn" class="btn-primary" onclick="showPage('auth')">Create Account</button>
+        <button id="reservation-btn" class="btn-primary" onclick="showPage('reservations')" style="display:none;">Make Reservation</button>
+      </div>
+    </div>
+    <div class="hero-waves">
+      <svg viewBox="0 0 1440 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,100 C360,200 1080,0 1440,100 L1440,200 L0,200 Z" fill="#FAF6F1" opacity="1"/>
+        <path d="M0,140 C480,60 960,180 1440,120 L1440,200 L0,200 Z" fill="#FAF6F1" opacity="0.5"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <div class="search-field">
+      <label>Destination</label>
+      <select>
+        <option>Select a port</option>
+        <option>Miami, USA</option>
+        <option>Barcelona, Spain</option>
+        <option>Dubai, UAE</option>
+        <option>Singapore</option>
+        <option>Sydney, Australia</option>
+      </select>
+    </div>
+    <div class="search-divider"></div>
+    <div class="search-field">
+      <label>Cruise</label>
+      <select>
+        <option>Any cruise</option>
+        <option>Atlantic Explorer</option>
+        <option>Desert Pearl Voyage</option>
+        <option>Pacific Odyssey</option>
+        <option>European Escape</option>
+      </select>
+    </div>
+    <div class="search-divider"></div>
+    <div class="search-field">
+      <label>Departure</label>
+      <input type="date" value="2026-06-01">
+    </div>
+    <div class="search-divider"></div>
+    <div class="search-field">
+      <label>Guests</label>
+      <select>
+        <option>1 Guest</option>
+        <option>2 Guests</option>
+        <option>3 Guests</option>
+        <option>4+ Guests</option>
+      </select>
+    </div>
+    <button class="search-btn" onclick="showPage('cruises')">Search Cruises →</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">World-Class Cruises</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Luxury Ports</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Curated Activities</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Suite Categories</span>
+    </div>
+  </div>
+
+  <!-- Featured Cruises -->
+  <section class="section">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <p class="section-eyebrow">Featured Voyages</p>
+        <h2 class="section-title">Our <em>finest</em><br>cruises await</h2>
+        <p class="section-sub">Hand-picked itineraries designed for those who seek beauty, comfort, and adventure on the open seas.</p>
+      </div>
+      <button class="btn-sm" onclick="showPage('cruises')">View All →</button>
+    </div>
+    <div class="cruises-grid" id="cruises-container"></div>
+      
+  </section>
+
+  <!-- Why Us -->
+  <section class="why-section">
+    <div class="why-grid">
+      <div>
+        <p class="section-eyebrow" style="color:var(--sand)">Why Mariana</p>
+        <h2 class="why-title">Where every<br>detail<br><em>matters</em></h2>
+        <p class="why-desc">We believe that the journey is just as important as the destination. Every aspect of your voyage is crafted to perfection — from the moment you step aboard until you return home with memories for a lifetime.</p>
+      </div>
+      <div class="why-features">
+        <div class="why-feature">
+          <div class="why-icon">🌐</div>
+          <h4>Global Destinations</h4>
+          <p>Sail to the world's most coveted ports across five continents.</p>
+        </div>
+        <div class="why-feature">
+          <div class="why-icon">🛎️</div>
+          <h4>Butler Service</h4>
+          <p>Dedicated personal service tailored to your every preference.</p>
+        </div>
+        <div class="why-feature">
+          <div class="why-icon">🏊</div>
+          <h4>World-Class Amenities</h4>
+          <p>Spas, pools, fine dining, and exclusive entertainment onboard.</p>
+        </div>
+        <div class="why-feature">
+          <div class="why-icon">🔒</div>
+          <h4>Safe & Secure</h4>
+          <p>Industry-leading safety standards and flexible booking policies.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section class="testimonial-section">
+    <p class="section-eyebrow" style="text-align:center">Guest Stories</p>
+    <p class="testimonial-quote">"The Pacific Odyssey was the most transformative experience of my life. Mariana made every moment feel like pure magic — from the suite to the sunset dinners."</p>
+    <p class="testimonial-author">— Sophia M., Sydney ★★★★★</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">MARIANA</div>
+        <p>Luxury cruise experiences crafted for those who believe that the world's finest adventures happen on the water.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a onclick="showPage('cruises')">Our Cruises</a>
+        <a onclick="showPage('suites')">Suites</a>
+        <a onclick="showPage('activities')">Activities</a>
+      </div>
+      <div class="footer-col">
+        <h4>Booking</h4>
+        <a onclick="showPage('reservations')">Make a Reservation</a>
+        <a onclick="showPage('reservations')">My Bookings</a>
+        <a onclick="showPage('reservations')">Payment</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a>About Us</a>
+        <a>Contact</a>
+        <a>Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Mariana Cruises. All rights reserved.</span>
+      <span class="footer-tagline">The sea calls. Answer it.</span>
+    </div>
+  </footer>
+</div>
+
+<!-- Auth Page -->
+<div id="page-auth" class="page">
+
+  <div class="auth-container">
+
+    <!-- LEFT / VISUAL SIDE -->
+    <div class="auth-visual">
+      
+      <div class="float-shape" style="width:300px;height:300px;background:rgba(239,165,196,0.12);top:10%;left:-100px;animation-delay:-1s;"></div>
+      <div class="float-shape" style="width:150px;height:150px;background:rgba(232,205,176,0.15);bottom:30%;right:-40px;animation-delay:-3s;"></div>
+
+      <div class="auth-visual-text">
+        <p class="section-eyebrow" style="color:var(--sand)">Welcome to Mariana</p>
+        
+        <h2 class="auth-visual-quote">
+          "The ocean stirs<br>
+          the heart, inspires<br>
+          the imagination."
+        </h2>
+
+        <p class="auth-visual-sub">
+          Join thousands of travelers who have discovered the magic of our luxury cruise experiences.
+          Your journey begins here.
+        </p>
+
+        <div style="margin-top:32px;display:flex;gap:20px;">
+          <div style="text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--sand);font-weight:600;">500+</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;">Happy Guests</div>
+          </div>
+
+          <div style="text-align:center;">
+            <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--sand);font-weight:600;">4.9★</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;">Average Rating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- RIGHT / FORM SIDE -->
+    <div class="auth-right">
+
+      <!-- TABS -->
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+        <div class="auth-tab" onclick="switchAuthTab('signup')">Create Account</div>
+      </div>
+
+
+      <!-- LOGIN FORM -->
+      <div class="auth-form active" id="auth-login">
+
+        <h2>Welcome back</h2>
+        <p>Sign in to access your reservations and profile.</p>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="login-email" type="email" placeholder="emma@gmail.com">
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input id="login-password" type="password" placeholder="••••••••">
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+          <a style="font-size:13px;color:var(--ocean);cursor:pointer;">Forgot password?</a>
+        </div>
+
+        <button type="button" class="btn-full" onclick="handleLogin()">
+          Sign In to Your Account
+        </button>
+
+        <p class="auth-switch">
+          Don't have an account? 
+          <a onclick="switchAuthTab('signup')">Create one here</a>
+        </p>
+
+      </div>
+
+
+      <!-- SIGNUP FORM -->
+      <div class="auth-form" id="auth-signup">
+
+        <h2>Join Mariana</h2>
+        <p>Create your account and start planning your dream voyage.</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input id="name" type="text" placeholder="Emma Johnson">
+          </div>
+
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input id="phone" type="tel" placeholder="9000000001">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="email" type="email" placeholder="emma@gmail.com">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Password</label>
+            <input id="password" type="password" placeholder="••••••••">
+          </div>
+
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="gender">
+              <option value="">Select gender</option>
+              <option>Female</option>
+              <option>Male</option>
+              <option>Non-binary</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input id="dob" type="date">
+          </div>
+
+          <div class="form-group">
+            <label>Country</label>
+            <select id="country">
+              <option>Select country</option>
+              <option>India</option>
+              <option>USA</option>
+              <option>UK</option>
+              <option>Spain</option>
+              <option>Australia</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address</label>
+          <input id="address" type="text" placeholder="New York, USA">
+        </div>
+
+        <button type="button" class="btn-full" onclick="handleSignup()">
+          Create My Account
+        </button>
+
+        <p class="auth-switch">
+          Already have an account? 
+          <a onclick="switchAuthTab('login')">Sign in</a>
+        </p>
+
+      </div>
+
+    </div> <!-- auth-right -->
+
+  </div> <!-- auth-container -->
+
+</div> <!-- page-auth -->
+
+
+<!-- CRUISES PAGE -->
+<div id="page-cruises" class="page">
+  <div class="page-hero">
+    <p class="section-eyebrow" style="color:var(--sand)">Set Sail</p>
+    <h1>Our Cruises</h1>
+    <p>Four extraordinary voyages across the world's finest waterways.</p>
+  </div>
+
+  <div class="filters-bar">
+    <span class="filter-label">Filter by:</span>
+    <button class="filter-chip active" onclick="filterCruises('all', this)">All Cruises</button>
+    <button class="filter-chip" onclick="filterCruises('under50k', this)">Under ₹50,000</button>
+    <button class="filter-chip" onclick="filterCruises('long', this)">Long Voyages</button>
+    <button class="filter-chip" onclick="filterCruises('upcoming', this)">Upcoming</button>
+  </div>
+
+  <div class="cruises-page-grid">
+
+    <!-- Cruise 1 -->
+    <div class="cruise-detail-card" data-price="30000" data-nights="9" data-start="2026-06-01">
+      <div class="cruise-detail-img cruise-gradient-1">
+        <div class="cruise-detail-header">
+          <div class="cruise-detail-name">Atlantic Explorer</div>
+          <div class="cruise-detail-ship">A1 Luxury · Ship Model</div>
+        </div>
+      </div>
+      <div class="cruise-detail-body">
+        <div class="route-display">
+          <div class="route-port">
+            <div class="route-port-name">Miami</div>
+            <div class="route-port-city">USA</div>
+          </div>
+          <div class="route-line">
+            <div class="route-line-bar"></div>
+            <div class="route-duration">9 Nights</div>
+          </div>
+          <div class="route-port">
+            <div class="route-port-name">Barcelona</div>
+            <div class="route-port-city">Spain</div>
+          </div>
+        </div>
+        <div class="cruise-dates">
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Departure</div>
+            <div class="cruise-date-val">June 1, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Arrival</div>
+            <div class="cruise-date-val">June 10, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Cruise ID</div>
+            <div class="cruise-date-val">#201</div>
+          </div>
+        </div>
+        <div class="cruise-detail-footer">
+          <div>
+            <div class="cruise-price">₹30,000</div>
+            <div style="font-size:11px;color:var(--text-muted)">Starting price / person</div>
+          </div>
+          <button class="btn-book" onclick="showPage('reservations');switchResSection('new')">Reserve Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cruise 2 -->
+    <div class="cruise-detail-card" data-price="45000" data-nights="7" data-start="2026-07-05">
+      <div class="cruise-detail-img cruise-gradient-2">
+        <div class="cruise-detail-header">
+          <div class="cruise-detail-name">Desert Pearl Voyage</div>
+          <div class="cruise-detail-ship">D2 Premium · Ship Model</div>
+        </div>
+      </div>
+      <div class="cruise-detail-body">
+        <div class="route-display">
+          <div class="route-port">
+            <div class="route-port-name">Dubai</div>
+            <div class="route-port-city">UAE</div>
+          </div>
+          <div class="route-line">
+            <div class="route-line-bar"></div>
+            <div class="route-duration">7 Nights</div>
+          </div>
+          <div class="route-port">
+            <div class="route-port-name">Singapore</div>
+            <div class="route-port-city">Singapore</div>
+          </div>
+        </div>
+        <div class="cruise-dates">
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Departure</div>
+            <div class="cruise-date-val">July 5, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Arrival</div>
+            <div class="cruise-date-val">July 12, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Cruise ID</div>
+            <div class="cruise-date-val">#202</div>
+          </div>
+        </div>
+        <div class="cruise-detail-footer">
+          <div>
+            <div class="cruise-price">₹45,000</div>
+            <div style="font-size:11px;color:var(--text-muted)">Starting price / person</div>
+          </div>
+          <button class="btn-book" onclick="showPage('reservations');switchResSection('new')">Reserve Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cruise 3 -->
+    <div class="cruise-detail-card" data-price="80000" data-nights="10" data-start="2026-08-15">
+      <div class="cruise-detail-img cruise-gradient-3">
+        <div class="cruise-detail-header">
+          <div class="cruise-detail-name">Pacific Odyssey</div>
+          <div class="cruise-detail-ship">P3 Elite · Ship Model</div>
+        </div>
+      </div>
+      <div class="cruise-detail-body">
+        <div class="route-display">
+          <div class="route-port">
+            <div class="route-port-name">Singapore</div>
+            <div class="route-port-city">Singapore</div>
+          </div>
+          <div class="route-line">
+            <div class="route-line-bar"></div>
+            <div class="route-duration">10 Nights</div>
+          </div>
+          <div class="route-port">
+            <div class="route-port-name">Sydney</div>
+            <div class="route-port-city">Australia</div>
+          </div>
+        </div>
+        <div class="cruise-dates">
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Departure</div>
+            <div class="cruise-date-val">Aug 15, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Arrival</div>
+            <div class="cruise-date-val">Aug 25, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Cruise ID</div>
+            <div class="cruise-date-val">#203</div>
+          </div>
+        </div>
+        <div class="cruise-detail-footer">
+          <div>
+            <div class="cruise-price">₹80,000</div>
+            <div style="font-size:11px;color:var(--text-muted)">Starting price / person</div>
+          </div>
+          <button class="btn-book" onclick="showPage('reservations');switchResSection('new')">Reserve Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cruise 4 -->
+    <div class="cruise-detail-card" data-price="35000" data-nights="9" data-start="2026-09-01">
+      <div class="cruise-detail-img cruise-gradient-4">
+        <div class="cruise-detail-header">
+          <div class="cruise-detail-name">European Escape</div>
+          <div class="cruise-detail-ship">E4 Classic · Ship Model</div>
+        </div>
+      </div>
+      <div class="cruise-detail-body">
+        <div class="route-display">
+          <div class="route-port">
+            <div class="route-port-name">Barcelona</div>
+            <div class="route-port-city">Spain</div>
+          </div>
+          <div class="route-line">
+            <div class="route-line-bar"></div>
+            <div class="route-duration">9 Nights</div>
+          </div>
+          <div class="route-port">
+            <div class="route-port-name">Miami</div>
+            <div class="route-port-city">USA</div>
+          </div>
+        </div>
+        <div class="cruise-dates">
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Departure</div>
+            <div class="cruise-date-val">Sep 1, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Arrival</div>
+            <div class="cruise-date-val">Sep 10, 2026</div>
+          </div>
+          <div class="cruise-date-item">
+            <div class="cruise-date-label">Cruise ID</div>
+            <div class="cruise-date-val">#204</div>
+          </div>
+        </div>
+        <div class="cruise-detail-footer">
+          <div>
+            <div class="cruise-price">₹35,000</div>
+            <div style="font-size:11px;color:var(--text-muted)">Starting price / person</div>
+          </div>
+          <button class="btn-book" onclick="showPage('reservations');switchResSection('new')">Reserve Now</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer style="background:var(--dark);color:rgba(255,255,255,0.4);padding:32px 80px;text-align:center;font-size:13px;">
+    © 2026 Mariana Cruises — <span style="font-family:'Cormorant Garamond',serif;color:var(--sand);font-style:italic;">The sea calls. Answer it.</span>
+  </footer>
+</div>
+
+<!-- SUITES PAGE -->
+<div id="page-suites" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#4E6049,#1C2B2A);">
+    <p class="section-eyebrow" style="color:var(--sand)">Accommodations</p>
+    <h1>Our Suites</h1>
+    <p>Four categories of luxury accommodation for every taste and budget.</p>
+  </div>
+  <div class="suites-grid">
+
+    <div class="suite-card">
+      <div class="suite-visual suite-bg-1">
+        <div class="suite-tier tier-standard">Standard</div>
+      </div>
+      <div class="suite-body">
+        <h3 class="suite-name">Interior Suite</h3>
+        <p class="suite-desc">A cozy and comfortable interior cabin, perfect for travelers who prefer to spend their time exploring the ship and destinations.</p>
+        <div class="suite-specs">
+          <span class="suite-spec">🚪 1 Room</span>
+          <span class="suite-spec">👥 Up to 2 guests</span>
+          <span class="suite-spec">📦 Suite #301</span>
+        </div>
+        <div class="suite-footer">
+          <div class="suite-price">₹2,000 <span>/night</span></div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Select</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="suite-card">
+      <div class="suite-visual suite-bg-2">
+        <div class="suite-tier tier-premium">Premium</div>
+      </div>
+      <div class="suite-body">
+        <h3 class="suite-name">Ocean View Suite</h3>
+        <p class="suite-desc">Wake up to breathtaking ocean views every morning. A spacious suite with floor-to-ceiling windows overlooking the open sea.</p>
+        <div class="suite-specs">
+          <span class="suite-spec">🚪 2 Rooms</span>
+          <span class="suite-spec">👥 Up to 3 guests</span>
+          <span class="suite-spec">📦 Suite #302</span>
+        </div>
+        <div class="suite-footer">
+          <div class="suite-price">₹4,000 <span>/night</span></div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Select</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="suite-card">
+      <div class="suite-visual suite-bg-3">
+        <div class="suite-tier tier-deluxe">Deluxe</div>
+      </div>
+      <div class="suite-body">
+        <h3 class="suite-name">Balcony Suite</h3>
+        <p class="suite-desc">Your own private balcony to enjoy sunsets, sea breezes, and the symphony of waves — all from the comfort of your suite.</p>
+        <div class="suite-specs">
+          <span class="suite-spec">🚪 2 Rooms</span>
+          <span class="suite-spec">👥 Up to 4 guests</span>
+          <span class="suite-spec">📦 Suite #303</span>
+        </div>
+        <div class="suite-footer">
+          <div class="suite-price">₹6,000 <span>/night</span></div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Select</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="suite-card" style="grid-column:span 1;">
+      <div class="suite-visual suite-bg-4">
+        <div class="suite-tier tier-royal">Royal</div>
+      </div>
+      <div class="suite-body">
+        <h3 class="suite-name">Royal Suite</h3>
+        <p class="suite-desc">The pinnacle of luxury at sea. Expansive living spaces, a private butler, world-class dining, and panoramic ocean views.</p>
+        <div class="suite-specs">
+          <span class="suite-spec">🚪 3 Rooms</span>
+          <span class="suite-spec">👥 Up to 6 guests</span>
+          <span class="suite-spec">📦 Suite #304</span>
+        </div>
+        <div class="suite-footer">
+          <div class="suite-price">₹10,000 <span>/night</span></div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Select</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison note -->
+    <div style="grid-column:span 2;background:var(--cream);border-radius:20px;padding:32px;border:1.5px solid var(--border);display:flex;align-items:center;gap:24px;">
+      <div style="font-size:48px;">💡</div>
+      <div>
+        <h4 style="font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:6px;">Suite pricing is per night</h4>
+        <p style="color:var(--text-muted);font-size:14px;line-height:1.6;">Total suite cost is calculated based on the number of cruise nights. Room number will be assigned at time of booking. All suites include daily housekeeping, complimentary breakfast, and 24/7 concierge service.</p>
+      </div>
+      <button class="btn-book" style="flex-shrink:0;" onclick="showPage('reservations');switchResSection('new')">Book a Suite</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ACTIVITIES PAGE -->
+<div id="page-activities" class="page">
+  <div class="page-hero" style="background:linear-gradient(135deg,#EFA5C4,#457C9C);">
+    <p class="section-eyebrow" style="color:var(--dark)">On Board & Beyond</p>
+    <h1>Activities</h1>
+    <p>Curated experiences that turn a cruise into an adventure of a lifetime.</p>
+  </div>
+  <div class="activities-grid">
+
+    <div class="activity-card">
+      <div class="activity-visual act-bg-1">
+      </div>
+      <div class="activity-body">
+        <h3 class="activity-name">Scuba Diving</h3>
+        <p class="activity-location">📍 Caribbean Sea</p>
+        <p class="activity-desc">Plunge into the vibrant underwater world of the Caribbean. Explore coral reefs, tropical fish, and the breathtaking ocean floor.</p>
+        <div class="activity-tags">
+          <span class="activity-tag">⏱ 2 Hours</span>
+          <span class="activity-tag">👥 Max 20</span>
+          <span class="activity-tag">Activity #701</span>
+        </div>
+        <div class="activity-footer">
+          <div class="activity-price">₹3,000</div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Add to Trip</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-visual act-bg-2">
+      </div>
+      <div class="activity-body">
+        <h3 class="activity-name">Wine Tasting</h3>
+        <p class="activity-location">📍 France Deck</p>
+        <p class="activity-desc">Embark on a sensory journey through world-class wines curated by our onboard sommelier. Discover pairings, flavors, and stories.</p>
+        <div class="activity-tags">
+          <span class="activity-tag">⏱ 1.5 Hours</span>
+          <span class="activity-tag">👥 Max 30</span>
+          <span class="activity-tag">Activity #702</span>
+        </div>
+        <div class="activity-footer">
+          <div class="activity-price">₹2,000</div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Add to Trip</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-visual act-bg-3">
+      </div>
+      <div class="activity-body">
+        <h3 class="activity-name">Casino Night</h3>
+        <p class="activity-location">📍 Main Hall</p>
+        <p class="activity-desc">Try your luck at our spectacular onboard casino. Poker, blackjack, roulette — all set against the backdrop of the open ocean.</p>
+        <div class="activity-tags">
+          <span class="activity-tag">⏱ 3 Hours</span>
+          <span class="activity-tag">👥 Max 50</span>
+          <span class="activity-tag">Activity #703</span>
+        </div>
+        <div class="activity-footer">
+          <div class="activity-price">₹1,500</div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Add to Trip</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-visual act-bg-4">
+      </div>
+      <div class="activity-body">
+        <h3 class="activity-name">Spa Therapy</h3>
+        <p class="activity-location">📍 Luxury Spa</p>
+        <p class="activity-desc">Surrender to total relaxation in our award-winning spa. Deep tissue massages, facials, and holistic treatments for complete rejuvenation.</p>
+        <div class="activity-tags">
+          <span class="activity-tag">⏱ 1 Hour</span>
+          <span class="activity-tag">👥 Max 15</span>
+          <span class="activity-tag">Activity #704</span>
+        </div>
+        <div class="activity-footer">
+          <div class="activity-price">₹4,000</div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Add to Trip</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="activity-visual act-bg-5">
+      </div>
+      <div class="activity-body">
+        <h3 class="activity-name">Sky Diving Simulation</h3>
+        <p class="activity-location">📍 Adventure Zone</p>
+        <p class="activity-desc">Experience the thrill of freefall without leaving the ship. Our state-of-the-art wind tunnel gives you the skydiving rush, safely.</p>
+        <div class="activity-tags">
+          <span class="activity-tag">⏱ 30 Min</span>
+          <span class="activity-tag">👥 Max 10</span>
+          <span class="activity-tag">Activity #705</span>
+        </div>
+        <div class="activity-footer">
+          <div class="activity-price">₹3,500</div>
+          <button class="btn-sm" onclick="showPage('reservations');switchResSection('new')">Add to Trip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info card -->
+    <div style="background:var(--dark);border-radius:20px;padding:32px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;" onclick="showPage('reservations');switchResSection('new')">
+      <div style="font-size:48px;margin-bottom:16px;">✨</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--white);margin-bottom:10px;">Bundle & Save</h3>
+      <p style="color:rgba(255,255,255,0.5);font-size:13px;line-height:1.7;margin-bottom:24px;">Add activities when you make your reservation and enjoy a seamless, pre-planned itinerary tailored just for you.</p>
+      <button class="btn-primary">Build My Itinerary →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     RESERVATIONS PAGE
+═══════════════════════════════════ -->
+<div id="page-reservations" class="page">
+  <div class="res-layout">
+    <!-- Sidebar -->
+    <div class="res-sidebar">
+      <h3>My Account</h3>
+      <div class="res-nav-item active" onclick="switchResSection('my-res')" id="resnav-my-res">
+        <span class="res-nav-icon">📋</span> My Reservations
+      </div>
+      <div class="res-nav-item" onclick="switchResSection('new')" id="resnav-new">
+        <span class="res-nav-icon">➕</span> New Reservation
+      </div>
+      <div class="res-nav-item" onclick="switchResSection('payment')" id="resnav-payment">
+        <span class="res-nav-icon">💳</span> Payment
+      </div>
+      <div class="res-nav-item" onclick="switchResSection('profile')" id="resnav-profile">
+        <span class="res-nav-icon">👤</span> My Profile
+      </div>
+
+      <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:24px;padding-top:24px;">
+        <div style="background:rgba(255,255,255,0.05);border-radius:14px;padding:20px;">
+          <h4 style="color:var(--white);font-size:14px;margin-bottom:6px;">Need help?</h4>
+          <p style="color:rgba(255,255,255,0.4);font-size:12px;line-height:1.6;">Our concierge team is available 24/7 to assist with any queries.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="res-content">
+
+      <!-- My Reservations -->
+      
+      <div class="res-section active" id="res-my-res">
+        <h2>My Reservations</h2>
+        <p>Track and manage all your cruise bookings.</p>
+
+        <div id="my-bookings-container"></div>
+      </div>
+
+      <!-- Edit Reservation (dynamically populated) -->
+      <div class="res-section" id="res-edit"></div>
+
+      <!-- New Reservation -->
+      <div class="res-section" id="res-new">
+        <h2>New Reservation</h2>
+        <p>Build your perfect cruise experience step by step.</p>
+        <div class="reservation-form">
+
+          <!-- Step 1: Choose Cruise -->
+          <div class="res-step">
+            <div class="step-header">
+              <div class="step-num">1</div>
+              <div>
+                <div class="step-title">Choose Your Cruise</div>
+                <div class="step-sub">Select the voyage that calls to you</div>
+              </div>
+            </div>
+            <div class="cruise-select-grid">
+              <div class="cruise-select-item selected" onclick="selectCruise(this)">
+                <h4>Atlantic Explorer</h4>
+                <p>Miami → Barcelona · Jun 1–10 · 9 nights</p>
+              </div>
+              <div class="cruise-select-item" onclick="selectCruise(this)">
+                <h4>Desert Pearl Voyage</h4>
+                <p>Dubai → Singapore · Jul 5–12 · 7 nights</p>
+              </div>
+              <div class="cruise-select-item" onclick="selectCruise(this)">
+                <h4>Pacific Odyssey</h4>
+                <p>Singapore → Sydney · Aug 15–25 · 10 nights</p>
+              </div>
+              <div class="cruise-select-item" onclick="selectCruise(this)">
+                <h4>European Escape</h4>
+                <p>Barcelona → Miami · Sep 1–10 · 9 nights</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Passengers -->
+          <div class="res-step">
+            <div class="step-header">
+              <div class="step-num">2</div>
+              <div>
+                <div class="step-title">Add Passengers</div>
+                <div class="step-sub">Enter details for all travelers</div>
+              </div>
+            </div>
+            <div id="passenger-list">
+              <div class="passenger-row">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" placeholder="Emma Johnson">
+                </div>
+                <div class="form-group" style="max-width:140px;">
+                  <label>Date of Birth</label>
+                  <input type="date">
+                </div>
+                <div class="form-group" style="max-width:120px;">
+                  <label>Gender</label>
+                  <select>
+                    <option>Female</option>
+                    <option>Male</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button class="btn-add" onclick="addPassenger()">+ Add Another Passenger</button>
+          </div>
+
+          <!-- Step 3: Select Suite -->
+          <div class="res-step">
+            <div class="step-header">
+              <div class="step-num">3</div>
+              <div>
+                <div class="step-title">Choose a Suite</div>
+                <div class="step-sub">Your home on the water</div>
+              </div>
+            </div>
+            <div class="suite-select-grid">
+              <div class="suite-select-item" onclick="selectSuite(this)">
+                <h4>🛏️ Interior Suite</h4>
+                <p>1 Room · Up to 2 guests</p>
+                <div class="price">₹2,000/night</div>
+              </div>
+              <div class="suite-select-item selected" onclick="selectSuite(this)">
+                <h4>🌊 Ocean View Suite</h4>
+                <p>2 Rooms · Up to 3 guests</p>
+                <div class="price">₹4,000/night</div>
+              </div>
+              <div class="suite-select-item" onclick="selectSuite(this)">
+                <h4>🌿 Balcony Suite</h4>
+                <p>2 Rooms · Up to 4 guests</p>
+                <div class="price">₹6,000/night</div>
+              </div>
+              <div class="suite-select-item" onclick="selectSuite(this)">
+                <h4>👑 Royal Suite</h4>
+                <p>3 Rooms · Up to 6 guests</p>
+                <div class="price">₹10,000/night</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Activities -->
+          <div class="res-step">
+            <div class="step-header">
+              <div class="step-num">4</div>
+              <div>
+                <div class="step-title">Add Activities</div>
+                <div class="step-sub">Optional — select as many as you like</div>
+              </div>
+            </div>
+            <div class="activities-select-grid">
+              <div class="activity-select-item selected" onclick="toggleActivity(this)">
+                <div class="activity-select-emoji">🤿</div>
+                <div class="activity-select-info">
+                  <h4>Scuba Diving</h4>
+                  <p>₹3,000 · 2 Hours</p>
+                </div>
+              </div>
+              <div class="activity-select-item" onclick="toggleActivity(this)">
+                <div class="activity-select-emoji">🍷</div>
+                <div class="activity-select-info">
+                  <h4>Wine Tasting</h4>
+                  <p>₹2,000 · 1.5 Hours</p>
+                </div>
+              </div>
+              <div class="activity-select-item" onclick="toggleActivity(this)">
+                <div class="activity-select-emoji">🎰</div>
+                <div class="activity-select-info">
+                  <h4>Casino Night</h4>
+                  <p>₹1,500 · 3 Hours</p>
+                </div>
+              </div>
+              <div class="activity-select-item" onclick="toggleActivity(this)">
+                <div class="activity-select-emoji">💆</div>
+                <div class="activity-select-info">
+                  <h4>Spa Therapy</h4>
+                  <p>₹4,000 · 1 Hour</p>
+                </div>
+              </div>
+              <div class="activity-select-item" onclick="toggleActivity(this)">
+                <div class="activity-select-emoji">🪂</div>
+                <div class="activity-select-info">
+                  <h4>Sky Diving Sim</h4>
+                  <p>₹3,500 · 30 Min</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cost Summary -->
+          <div class="cost-summary">
+            <h4>Estimated Total</h4>
+            <div class="cost-row">
+              <span class="cost-label">Cruise (Atlantic Explorer)</span>
+              <span class="cost-val">₹30,000</span>
+            </div>
+            <div class="cost-row">
+              <span class="cost-label">Ocean View Suite × 9 nights</span>
+              <span class="cost-val">₹36,000</span>
+            </div>
+            <div class="cost-row">
+              <span class="cost-label">Scuba Diving × 1</span>
+              <span class="cost-val">₹3,000</span>
+            </div>
+            <div class="cost-row cost-total">
+              <span class="cost-label">Total</span>
+              <span class="cost-val">₹69,000</span>
+            </div>
+          </div>
+
+          <button class="btn-full" style="margin-top:24px;" onclick="confirmReservation()">Confirm Reservation →</button>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="res-section" id="res-payment">
+        <h2>Make Payment</h2>
+        <p>Secure payment for your upcoming voyage.</p>
+
+        <!-- Select Reservation -->
+        <div style="background:var(--white);border-radius:16px;padding:24px;margin-bottom:24px;box-shadow:0 4px 16px rgba(28,43,42,0.06);">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Select Reservation</label>
+            <select id="payment-reservation-select" onchange="loadReservationCost()" style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;">
+              <option>Loading reservations...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="payment-form">
+          <h4 style="font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:20px;">Payment Method</h4>
+          <div class="payment-methods">
+            <div class="payment-method selected" onclick="selectPayment(this)">
+              <div class="payment-method-icon">💳</div>
+              <div class="payment-method-name">Credit Card</div>
+            </div>
+            <div class="payment-method" onclick="selectPayment(this)">
+              <div class="payment-method-icon">📱</div>
+              <div class="payment-method-name">UPI</div>
+            </div>
+            <div class="payment-method" onclick="selectPayment(this)">
+              <div class="payment-method-icon">🏦</div>
+              <div class="payment-method-name">Debit Card</div>
+            </div>
+          </div>
+
+          <div class="card-preview">
+            <div class="card-chip">💳</div>
+            <div class="card-number">•••• •••• •••• 4242</div>
+            <div class="card-info">
+              <div>
+                <div class="card-holder-label">Card Holder</div>
+                <div class="card-holder-name">Emma Johnson</div>
+              </div>
+              <div>
+                <div class="card-expiry-label">Expires</div>
+                <div class="card-expiry">12/28</div>
+              </div>
+              <div style="font-size:24px;align-self:flex-end;">◎</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="grid-column:span 2;">
+              <label>Card Number</label>
+              <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Card Holder Name</label>
+              <input type="text" placeholder="Emma Johnson">
+            </div>
+            <div class="form-group">
+              <label>Expiry Date</label>
+              <input type="text" placeholder="MM/YY">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>CVV</label>
+              <input type="text" placeholder="•••" maxlength="3">
+            </div>
+            <div class="form-group">
+              <label>Amount (₹)</label>
+              <input id="payment-amount" type="text" value="—" readonly style="background:var(--cream);font-weight:700;cursor:not-allowed;color:var(--ocean);">
+            </div>
+          </div>
+
+          <div style="background:rgba(105,166,152,0.08);border:1px solid rgba(105,166,152,0.2);border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:var(--forest);display:flex;align-items:center;gap:10px;">
+            <span style="font-size:18px;">🔒</span> Your payment is secured with 256-bit SSL encryption. We never store card details.
+          </div>
+
+          <button class="btn-full" onclick="handlePayment()">Submit Payment →</button>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div class="res-section" id="res-profile">
+        <h2>My Profile</h2>
+        <p>Manage your personal information and preferences.</p>
+        <div style="background:var(--white);border-radius:20px;padding:36px;box-shadow:0 4px 20px rgba(28,43,42,0.06);">
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border);">
+            <div id="profile-avatar" style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--ocean),var(--teal));display:flex;align-items:center;justify-content:center;font-size:32px;color:white;font-family:'Cormorant Garamond',serif;font-weight:600;">U</div>
+            <div>
+              <div id="profile-display-name" style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;">User</div>
+              <div id="profile-reg-info" style="color:var(--text-muted);font-size:13px;">Member since 2026</div>
+            </div>
+            <button class="btn-ghost" style="margin-left:auto;">Upload Photo</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input id="profile-name" type="text" value="">
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input id="profile-email" type="email" value="">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Mobile Number</label>
+              <input id="profile-mobile" type="tel" value="">
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" value="1995-04-12">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Gender</label>
+              <select><option>Female</option><option>Male</option><option>Other</option></select>
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" value="New York, USA">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>New Password</label>
+              <input id="profile-password" type="password" placeholder="Leave blank to keep current">
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input id="profile-confirm-password" type="password" placeholder="Repeat new password">
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px;">
+            <button class="btn-full" style="max-width:200px;" onclick="handleProfileUpdate()">Save Changes</button>
+            <button class="btn-ghost" onclick="logout()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end res-content -->
+  </div>
+</div>
+
+<!-- ─── MODAL ─── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-icon" id="modal-icon">✅</div>
+    <h3 id="modal-title">Reservation Confirmed!</h3>
+    <p id="modal-desc">Your reservation has been successfully created. A confirmation has been sent to your email address.</p>
+    <div class="modal-actions" id="modal-actions">
+      <button class="btn-full" onclick="closeModalDirect();switchResSection('my-res')">View My Reservations</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✅</span>
+  <span id="toast-msg">Action completed</span>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  window.onload = () => {
+    initApp();
+  };
+</script>
+
+</body>
+</html>
