@@ -1,0 +1,6 @@
+CREATE TABLE Ports (
+  Port_Code INT AUTO_INCREMENT PRIMARY KEY,
+  Port_Name VARCHAR(100) NOT NULL,
+  City      VARCHAR(45),
+  Country   VARCHAR(45)
+);

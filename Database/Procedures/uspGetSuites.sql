@@ -1,0 +1,8 @@
+DELIMITER //
+
+CREATE PROCEDURE uspGetSuites()
+BEGIN
+    SELECT * FROM Suites;
+END //
+
+DELIMITER ;

@@ -1,0 +1,9 @@
+DELIMITER //
+
+CREATE PROCEDURE uspGetCruises()
+BEGIN
+    SELECT * FROM uvViewCruises;
+END //
+
+DELIMITER ;
+

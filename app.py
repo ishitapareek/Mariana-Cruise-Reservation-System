@@ -5,21 +5,24 @@ from db import get_db
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
-CORS(app, supports_credentials=True)
-
+CORS(app, supports_credentials = True)
 
 @app.route("/")
-def home():
+def home(): 
     return render_template("index.html")
 
 
-@app.route("/api/register", methods=["POST"])
+@app.route("/api/register", methods = ["POST"])
 def register():
     data = request.json
     name = data.get("name")
     email = data.get("email")
     mobile = data.get("mobile")
     password = data.get("password")
+
+    address = data.get("address", None)
+    dob = data.get("dob", None)
+    gender = data.get("gender", None)
 
     if not name or not email or not password:
         return jsonify({"error": "Missing fields"}), 400
@@ -28,8 +31,10 @@ def register():
     db = get_db()
     cursor = db.cursor()
 
+    params = (name, email, mobile, hashed.decode(), address, dob, gender)
+
     try:
-        cursor.execute("CALL Register_User(%s, %s, %s, %s)", (name, email, mobile, hashed.decode()))
+        cursor.callproc("Register_User", params)
         db.commit()
         return jsonify({"message": "User registered successfully"})
     except Exception as e:
@@ -39,21 +44,27 @@ def register():
         db.close()
 
 
-@app.route("/api/login", methods=["POST"])
+@app.route("/api/login", methods = ["POST"])
 def login():
     data = request.json
     email = data.get("email")
     password = data.get("password")
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
+
+    params = (email,)
 
     try:
-        cursor.execute("SELECT * FROM Personal WHERE Email = %s", (email,))
-        user = cursor.fetchone()
+        cursor.callproc('uspGetEmail', params)
+        user = ''
+
+        for result in cursor.stored_results():
+            user = result.fetchone()
 
         if not user:
             return jsonify({"error": "User not found"}), 404
+
         if not user["Password"]:
             return jsonify({"error": "Password missing in DB"}), 400
 
@@ -74,18 +85,17 @@ def login():
         db.close()
 
 
-@app.route("/api/cruises", methods=["GET"])
+@app.route("/api/cruises", methods = ["GET"])
 def get_cruises():
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute("""
-            SELECT cs.Cruise_Id, cm.Cruise_Name, cs.Start_Date, cs.End_Date, cs.Price_Base
-            FROM Cruise_Schedule cs
-            JOIN Cruise_Master cm ON cs.Cruise_Master_Id = cm.Cruise_Master_Id
-        """)
-        cruises = cursor.fetchall()
+        cursor.callproc('uspGetCruises')
+
+        cruises = []
+        for result in cursor.stored_results():
+            cruises = result.fetchall()
 
         for c in cruises:
             if c.get("Start_Date"):
@@ -99,7 +109,7 @@ def get_cruises():
         db.close()
 
 
-@app.route("/api/book", methods=["POST"])
+@app.route("/api/book", methods = ["POST"])
 def book():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -112,14 +122,18 @@ def book():
         return jsonify({"error": "Missing cruise_id or members"}), 400
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
+
+    params = (session["user_id"], cruise_id, members)
 
     try:
-        cursor.execute("CALL Create_Reservation(%s, %s, %s)", (session["user_id"], cruise_id, members))
-        db.commit()
+        cursor.callproc("Create_Reservation", params)
 
-        cursor.execute("SELECT LAST_INSERT_ID() AS id")
-        result = cursor.fetchone()
+        result = ''
+        for r in cursor.stored_results():
+            result = r.fetchone()
+
+        db.commit()
         return jsonify({"message": "Booking successful", "reservation_id": result["id"] if result else None})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -128,26 +142,24 @@ def book():
         db.close()
 
 
-@app.route("/api/my-bookings", methods=["GET"])
+@app.route("/api/my-bookings", methods = ["GET"])
 def my_bookings():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute("""
-            SELECT Reservation_Id, Cruise_Name, Start_Date, End_Date, Members, Status_Name
-            FROM Reservation_Summary
-            WHERE User_Id = %s
-            ORDER BY Created_At DESC
-        """, (session["user_id"],))
-        bookings = cursor.fetchall()
+        cursor.callproc('uvMyBookings', (session["user_id"],))
+
+        bookings = ''
+        for result in cursor.stored_results():
+            bookings = result.fetchall()
 
         for b in bookings:
             if b.get("Start_Date"):
-                b["Start_Date"] = str(b["Start_Date"])
+                b["Start_Date"] = str(b["Start_Date"])  
             if b.get("End_Date"):
                 b["End_Date"] = str(b["End_Date"])
 
@@ -157,7 +169,7 @@ def my_bookings():
         db.close()
 
 
-@app.route("/api/pay", methods=["POST"])
+@app.route("/api/pay", methods = ["POST"])
 def pay():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -170,18 +182,20 @@ def pay():
         return jsonify({"error": "Missing reservation_id or amount"}), 400
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute(
-            "SELECT * FROM Reservation WHERE Reservation_Id = %s AND User_Id = %s",
-            (reservation_id, session["user_id"])
-        )
-        if not cursor.fetchone():
+        cursor.callproc('uspGetUser', (session["user_id"], reservation_id))
+
+        reservation = ''
+        for result in cursor.stored_results():
+            reservation = result.fetchone()
+
+        if not reservation:
             return jsonify({"error": "Reservation not found"}), 404
 
         # Trigger after_payment auto-updates status to Confirmed
-        cursor.execute("CALL Make_Payment(%s, %s)", (reservation_id, amount))
+        cursor.callproc('Make_Payment', (reservation_id, amount))
         db.commit()
         return jsonify({"message": "Payment successful"})
     except Exception as e:
@@ -191,49 +205,65 @@ def pay():
         db.close()
 
 
-@app.route("/api/cost/<int:res_id>", methods=["GET"])
+@app.route("/api/cost/<int:res_id>", methods = ["GET"])
 def get_cost(res_id):
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute(
-            "SELECT Reservation_Id FROM Reservation WHERE Reservation_Id = %s AND User_Id = %s",
-            (res_id, session["user_id"])
-        )
-        if not cursor.fetchone():
+        cursor.callproc('uspGetUser', (session["user_id"], res_id))
+
+        reservation = ''
+        for result in cursor.stored_results():
+            reservation = result.fetchone()
+
+        if not reservation:
             return jsonify({"error": "Reservation not found"}), 404
 
-        cursor.execute("SELECT Get_Total_Cost(%s) AS Total_Cost", (res_id,))
-        result = cursor.fetchone()
-        return jsonify({"total": result["Total_Cost"] if result else 0})
+        cursor.callproc('uspGetTotalCost', (res_id,))
+
+        cost = ''
+        for result in cursor.stored_results():
+            cost = result.fetchone()
+
+        return jsonify({"total": cost["Total_Cost"] if cost else 0})
     finally:
         cursor.close()
         db.close()
 
 
-@app.route("/api/suites", methods=["GET"])
+@app.route("/api/suites", methods = ["GET"])
 def get_suites():
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
     try:
-        cursor.execute("SELECT * FROM Suites")
-        return jsonify(cursor.fetchall())
+        cursor.callproc('uspGetSuites')
+
+        suites = ''
+        for result in cursor.stored_results():
+            suites = result.fetchall()
+            
+        return jsonify(suites)
     finally:
         cursor.close()
         db.close()
 
 
-@app.route("/api/activities", methods=["GET"])
+@app.route("/api/activities", methods = ["GET"])
 def get_activities():
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
     try:
-        cursor.execute("SELECT * FROM Activities")
-        return jsonify(cursor.fetchall())
+        cursor.callproc('uspGetActivies')
+
+        activities = ''
+        for result in cursor.stored_results():
+            activities = result.fetchall()
+
+        return jsonify(activities)
     finally:
         cursor.close()
         db.close()
@@ -245,20 +275,14 @@ def get_reservation(res_id):
         return jsonify({"error": "Not logged in"}), 401
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute("""
-            SELECT r.Reservation_Id, r.Cruise_Id, r.Members, r.Status_Id,
-                   cm.Cruise_Name, cs.Start_Date, cs.End_Date, cs.Price_Base,
-                   bs.Status_Name
-            FROM Reservation r
-            JOIN Cruise_Schedule cs ON r.Cruise_Id = cs.Cruise_Id
-            JOIN Cruise_Master cm  ON cs.Cruise_Master_Id = cm.Cruise_Master_Id
-            JOIN Booking_Status bs ON r.Status_Id = bs.Status_Id
-            WHERE r.Reservation_Id = %s AND r.User_Id = %s
-        """, (res_id, session["user_id"]))
-        res = cursor.fetchone()
+        cursor.callproc('uspGetReservationDetails', (res_id, session["user_id"]))
+
+        res = ''
+        for result in cursor.stored_results():
+            res = result.fetchone()
 
         if not res:
             return jsonify({"error": "Reservation not found"}), 404
@@ -268,17 +292,21 @@ def get_reservation(res_id):
         if res.get("End_Date"):
             res["End_Date"] = str(res["End_Date"])
 
-        cursor.execute("SELECT * FROM Passengers WHERE Reservation_Id = %s", (res_id,))
-        res["passengers"] = cursor.fetchall()
+        cursor.callproc('uspGetPassengers', (res_id,))
+        for result in cursor.stored_results():
+            res["passengers"] = result.fetchall()
 
-        cursor.execute("SELECT * FROM User_Suites WHERE Reservation_Id = %s", (res_id,))
-        res["suites"] = cursor.fetchall()
+        cursor.callproc('uspGetUserSuites', (res_id,))
+        for result in cursor.stored_results():
+            res["suites"] = result.fetchall()
 
-        cursor.execute("SELECT Activity_Code FROM User_Activities WHERE Reservation_Id = %s", (res_id,))
-        res["activities"] = [r["Activity_Code"] for r in cursor.fetchall()]
+        cursor.callproc('uspGetUserActivities', (res_id,))
+        for result in cursor.stored_results():
+            res["activities"] = [r["Activity_Code"] for r in result.fetchall()]
 
-        cursor.execute("SELECT Get_Total_Cost(%s) AS Total_Cost", (res_id,))
-        cost_result = cursor.fetchone()
+        cursor.callproc('uspGetTotalCost', (res_id,))
+        for result in cursor.stored_results():
+            cost_result = result.fetchone()
         res["Total_Cost"] = cost_result["Total_Cost"] if cost_result else 0
 
         return jsonify(res)
@@ -293,14 +321,15 @@ def update_reservation(res_id):
         return jsonify({"error": "Not logged in"}), 401
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute(
-            "SELECT * FROM Reservation WHERE Reservation_Id = %s AND User_Id = %s",
-            (res_id, session["user_id"])
-        )
-        existing = cursor.fetchone()
+        cursor.callproc('uspGetUser', (session["user_id"], res_id))
+
+        existing = ''
+        for result in cursor.stored_results():
+            existing = result.fetchone()
+
         if not existing:
             return jsonify({"error": "Reservation not found"}), 404
         if existing["Status_Id"] != 1:
@@ -314,33 +343,21 @@ def update_reservation(res_id):
         suite_nights = data.get("suite_nights", 1)
         activities = data.get("activities", [])
 
-        cursor.execute(
-            "UPDATE Reservation SET Cruise_Id = %s, Members = %s WHERE Reservation_Id = %s",
-            (cruise_id, members, res_id)
-        )
+        cursor.callproc('uspUpdateReservation', (cruise_id, members, res_id))
 
-        cursor.execute("DELETE FROM Passengers WHERE Reservation_Id = %s", (res_id,))
+        cursor.callproc('uspDeletePassengers', (res_id,))
         for p in passengers:
             name = p.get("name", "").strip()
             if name:
-                cursor.execute(
-                    "INSERT INTO Passengers (Reservation_Id, Full_Name) VALUES (%s, %s)",
-                    (res_id, name)
-                )
+                cursor.callproc('uspInsertPassenger', (res_id, name))
 
-        cursor.execute("DELETE FROM User_Suites WHERE Reservation_Id = %s", (res_id,))
+        cursor.callproc('uspDeleteUserSuites', (res_id,))
         if suite_code:
-            cursor.execute(
-                "INSERT INTO User_Suites (Reservation_Id, Suite_Code, Nights) VALUES (%s, %s, %s)",
-                (res_id, suite_code, suite_nights)
-            )
+            cursor.callproc('uspInsertUserSuite', (res_id, suite_code, suite_nights))
 
-        cursor.execute("DELETE FROM User_Activities WHERE Reservation_Id = %s", (res_id,))
+        cursor.callproc('uspDeleteUserActivities', (res_id,))
         for act_code in activities:
-            cursor.execute(
-                "INSERT INTO User_Activities (Reservation_Id, Activity_Code) VALUES (%s, %s)",
-                (res_id, act_code)
-            )
+            cursor.callproc('uspInsertUserActivity', (res_id, act_code))
 
         db.commit()
         return jsonify({"message": "Reservation updated successfully"})
@@ -364,21 +381,25 @@ def get_me():
         return jsonify({"user": None})
 
     db = get_db()
-    cursor = db.cursor(dictionary=True)
+    cursor = db.cursor(dictionary = True)
 
     try:
-        cursor.execute(
-            "SELECT Registration_Id, Full_Name, Email, Mobile_Number FROM Personal WHERE Registration_Id = %s",
-            (session["user_id"],)
-        )
-        user = cursor.fetchone()
+        cursor.callproc('uspGetMe', (session["user_id"],))
+
+        user = ''
+        for result in cursor.stored_results():
+            user = result.fetchone()
+            
+        if user and user.get("DOB"):
+            user["DOB"] = str(user["DOB"])
+
         return jsonify({"user": user})
     finally:
         cursor.close()
         db.close()
 
 
-@app.route("/api/profile", methods=["PUT"])
+@app.route("/api/profile", methods = ["PUT"])
 def update_profile():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -388,6 +409,12 @@ def update_profile():
     email = data.get("email", "").strip()
     mobile = data.get("mobile", "").strip()
     new_password = data.get("password", "").strip()
+    address = data.get("address", "").strip()
+    dob = data.get("dob", "").strip()
+    gender = data.get("gender", "").strip()
+
+    if not dob:
+        dob = None
 
     if not name or not email:
         return jsonify({"error": "Name and email are required"}), 400
@@ -395,27 +422,23 @@ def update_profile():
     db = get_db()
     cursor = db.cursor()
 
+    hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()) if new_password else ""
+
+    params = (name, email, mobile, hashed.decode() if isinstance(hashed, bytes) else hashed, address, dob, gender, session["user_id"])
+    
     try:
-        if new_password:
-            hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
-            cursor.execute(
-                "UPDATE Personal SET Full_Name=%s, Email=%s, Mobile_Number=%s, Password=%s WHERE Registration_Id=%s",
-                (name, email, mobile, hashed.decode(), session["user_id"])
-            )
-        else:
-            cursor.execute(
-                "UPDATE Personal SET Full_Name=%s, Email=%s, Mobile_Number=%s WHERE Registration_Id=%s",
-                (name, email, mobile, session["user_id"])
-            )
+        cursor.callproc('uspUpdateProfile', params)
 
         db.commit()
         return jsonify({"message": "Profile updated successfully"})
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
     finally:
         cursor.close()
         db.close()
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug = True)

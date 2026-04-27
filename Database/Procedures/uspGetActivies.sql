@@ -1,0 +1,9 @@
+DELIMITER //
+
+CREATE PROCEDURE uspGetActivies()
+BEGIN
+    SELECT * FROM Activities;
+END //
+
+DELIMITER ;
+

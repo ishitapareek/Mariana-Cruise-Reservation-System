@@ -118,6 +118,9 @@ async function handleSignup() {
   const email = document.getElementById("email").value.trim();
   const mobile = document.getElementById("phone").value.trim();
   const password = document.getElementById("password").value.trim();
+  const dob = document.getElementById("dob") ? document.getElementById("dob").value : null;
+  const gender = document.getElementById("gender") ? document.getElementById("gender").value : null;
+  const address = document.getElementById("address") ? document.getElementById("address").value.trim() : null;
 
   if (!name || !email || !mobile || !password) {
     showToast("⚠️ Please fill all required fields");
@@ -129,7 +132,7 @@ async function handleSignup() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ name, email, mobile, password })
+      body: JSON.stringify({ name, email, mobile, password, dob, gender, address })
     });
     const result = await res.json();
 
@@ -167,6 +170,14 @@ async function loadUser() {
         navUser.innerText = data.user.Full_Name;
         navUser.setAttribute("onclick", "showPage('reservations');switchResSection('profile')");
       }
+      
+      const cardNameInput = document.getElementById("payment-card-name");
+      const cardHolderName = document.getElementById("card-holder-name");
+      if (cardNameInput && currentUser.Full_Name) {
+        cardNameInput.value = currentUser.Full_Name;
+        if (cardHolderName) cardHolderName.innerText = currentUser.Full_Name;
+      }
+      
       if (createBtn) createBtn.style.display = "none";
       if (reserveBtn) reserveBtn.style.display = "inline-block";
     } else {
@@ -571,6 +582,9 @@ function loadProfile() {
   const nameInput = document.getElementById("profile-name");
   const emailInput = document.getElementById("profile-email");
   const mobileInput = document.getElementById("profile-mobile");
+  const dobInput = document.getElementById("profile-dob");
+  const genderSelect = document.getElementById("profile-gender");
+  const addressInput = document.getElementById("profile-address");
 
   if (avatar) avatar.textContent = (currentUser.Full_Name || "U")[0].toUpperCase();
   if (nameEl) nameEl.textContent = currentUser.Full_Name || "User";
@@ -578,6 +592,9 @@ function loadProfile() {
   if (nameInput) nameInput.value = currentUser.Full_Name || "";
   if (emailInput) emailInput.value = currentUser.Email || "";
   if (mobileInput) mobileInput.value = currentUser.Mobile_Number || "";
+  if (dobInput && currentUser.DOB) dobInput.value = currentUser.DOB;
+  if (genderSelect && currentUser.Gender) genderSelect.value = currentUser.Gender;
+  if (addressInput) addressInput.value = currentUser.Address || "";
 }
 
 
@@ -593,6 +610,9 @@ async function handleProfileUpdate() {
   const mobile = document.getElementById("profile-mobile").value.trim();
   const password = document.getElementById("profile-password").value.trim();
   const confirmPassword = document.getElementById("profile-confirm-password").value.trim();
+  const dob = document.getElementById("profile-dob") ? document.getElementById("profile-dob").value : null;
+  const gender = document.getElementById("profile-gender") ? document.getElementById("profile-gender").value : null;
+  const address = document.getElementById("profile-address") ? document.getElementById("profile-address").value.trim() : null;
 
   if (!name || !email) {
     showToast("⚠️ Name and email are required");
@@ -604,7 +624,7 @@ async function handleProfileUpdate() {
   }
 
   try {
-    const body = { name, email, mobile };
+    const body = { name, email, mobile, dob, gender, address };
     if (password) body.password = password;
 
     const res = await fetch("/api/profile", {
