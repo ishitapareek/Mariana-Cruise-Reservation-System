@@ -385,14 +385,30 @@ async function confirmReservation() {
   }
 
   const cruise = CRUISE_MAP[selectedCruiseIndex];
-  const passengers = document.querySelectorAll('#passenger-list .passenger-row').length;
+  const passengerInputs = document.querySelectorAll('#passenger-list .passenger-row input[type="text"]');
+  const passengers = [];
+  passengerInputs.forEach(input => {
+    const name = input.value.trim();
+    if (name) passengers.push({ name });
+  });
+
+  const members = Math.max(passengers.length, 1);
+  const suiteCode = SUITE_MAP[selectedSuiteIndex].code;
+  const activities = Array.from(selectedActivities).map(i => ACTIVITY_MAP[i].code);
 
   try {
     const res = await fetch("/api/book", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ cruise_id: cruise.id, members: passengers })
+      body: JSON.stringify({ 
+        cruise_id: cruise.id, 
+        members: members,
+        passengers: passengers,
+        suite_code: suiteCode,
+        suite_nights: cruise.nights,
+        activities: activities
+      })
     });
     const data = await res.json();
 
@@ -445,6 +461,26 @@ async function loadMyBookings() {
            <button class="btn-ghost" onclick="switchResSection('payment')">💳 Make Payment</button>`
         : `<span style="color:var(--forest);font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">✅ Confirmed — No pending payments</span>`;
 
+      let suiteName = "None";
+      if (r.suites && r.suites.length > 0) {
+        const suiteCode = r.suites[0].Suite_Code;
+        const suiteInfo = SUITE_MAP.find(s => s.code === suiteCode);
+        if (suiteInfo) suiteName = suiteInfo.name;
+      }
+
+      let activitiesNames = "None";
+      if (r.activities && r.activities.length > 0) {
+        activitiesNames = r.activities.map(code => {
+          const act = ACTIVITY_MAP.find(a => a.code === code);
+          return act ? act.name : '';
+        }).filter(n => n).join(', ');
+      }
+
+      let passengersList = "None";
+      if (r.passengers && r.passengers.length > 0) {
+        passengersList = r.passengers.map(p => p.Full_Name || 'Unknown').join(', ');
+      }
+
       html += `
         <div class="res-card">
           <div class="res-card-header">
@@ -470,6 +506,18 @@ async function loadMyBookings() {
             <div class="res-detail">
               <div class="res-detail-label">Status</div>
               <div class="res-detail-val">${statusName}</div>
+            </div>
+            <div class="res-detail">
+              <div class="res-detail-label">Suite</div>
+              <div class="res-detail-val">${suiteName}</div>
+            </div>
+            <div class="res-detail" style="grid-column: span 2;">
+              <div class="res-detail-label">Activities</div>
+              <div class="res-detail-val">${activitiesNames}</div>
+            </div>
+            <div class="res-detail" style="grid-column: span 2;">
+              <div class="res-detail-label">Passengers</div>
+              <div class="res-detail-val">${passengersList}</div>
             </div>
           </div>
           <div class="res-card-footer">${footerHtml}</div>
