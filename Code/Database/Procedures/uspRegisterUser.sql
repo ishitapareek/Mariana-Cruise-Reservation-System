@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE Register_User(
+CREATE PROCEDURE uspRegisterUser(
   IN p_name VARCHAR(200),
   IN p_email VARCHAR(200),
   IN p_mobile CHAR(10),

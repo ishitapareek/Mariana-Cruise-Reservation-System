@@ -21,12 +21,12 @@ Run order:
    - Payment.sql
 
 2. Functions
-   - Get_Total_Cost.sql
+   - ufGetTotalCost.sql
 
 3. Procedures
-   - Register_User.sql
-   - Create_Reservation.sql
-   - Make_Payment.sql
+   - uspRegisterUser.sql
+   - uspCreateReservation.sql
+   - uspMakePayment.sql
    - uspGetEmail.sql
    - uspGetUser.sql
    - uspGetCruises.sql
@@ -46,15 +46,15 @@ Run order:
    - uspInsertUserSuite.sql
    - uspDeleteUserActivities.sql
    - uspInsertUserActivity.sql
-   - uvMyBookings.sql
+   - uspMyBookings.sql
 
 4. Triggers
-   - after_payment.sql
+   - utAfterPayment.sql
 
 5. Views
    - uvViewCruises.sql
    - uvReservationDetails.sql
-   - Reservation_Summary.sql
+   - uvReservationSummary.sql
 
 6. Seed Data
    - seed_data.sql

@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE Create_Reservation(
+CREATE PROCEDURE uspCreateReservation(
   IN p_user INT,
   IN p_cruise INT,
   IN p_members INT

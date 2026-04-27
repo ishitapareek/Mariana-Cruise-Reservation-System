@@ -30,7 +30,7 @@ def register():
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
 
     try:
-        execute_proc("Register_User", (name, email, mobile, hashed.decode(), address, dob, gender))
+        execute_proc("uspRegisterUser", (name, email, mobile, hashed.decode(), address, dob, gender))
         return jsonify({"message": "User registered successfully"})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -97,7 +97,7 @@ def book():
     cursor = db.cursor(dictionary=True)
 
     try:
-        cursor.callproc("Create_Reservation", (session["user_id"], cruise_id, members))
+        cursor.callproc("uspCreateReservation", (session["user_id"], cruise_id, members))
         
         result = None
         for r in cursor.stored_results():
@@ -132,7 +132,7 @@ def my_bookings():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
-    bookings = call_proc('uvMyBookings', (session["user_id"],))
+    bookings = call_proc('uspMyBookings', (session["user_id"],))
 
     for b in bookings:
         if b.get("Start_Date"):
@@ -168,7 +168,7 @@ def pay():
         return jsonify({"error": "Reservation not found"}), 404
 
     try:
-        execute_proc('Make_Payment', (reservation_id, amount))
+        execute_proc('uspMakePayment', (reservation_id, amount))
         return jsonify({"message": "Payment successful"})
     except Exception as e:
         return jsonify({"error": str(e)}), 400

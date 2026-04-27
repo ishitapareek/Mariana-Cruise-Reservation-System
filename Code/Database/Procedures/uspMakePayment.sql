@@ -1,6 +1,6 @@
 DELIMITER //
 
-CREATE PROCEDURE Make_Payment(
+CREATE PROCEDURE uspMakePayment(
   IN p_res INT,
   IN p_amount INT
 )

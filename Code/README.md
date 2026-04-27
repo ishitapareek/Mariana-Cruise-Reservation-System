@@ -17,7 +17,8 @@ Mariana Cruise Reservation System is a robust, full-stack web application built 
 - **Cruise Browsing:** View available cruise itineraries, start and end dates.
 - **Reservation System:**
   - Book a cruise and add accompanying passengers.
-  - Choose a suite and select onboard activities.
+  - Choose a suite and specify the number of nights.
+  - Opt into onboard activities.
 - **Reservation Management:** View booking history, cost breakdown, and update pending reservations.
 - **Payment Processing:** Integrated mock payment handling that automatically updates reservation statuses to "Confirmed".
 - **Database-Driven Logic:** Heavy reliance on MySQL stored procedures and views to abstract business logic and prevent SQL injection.
@@ -120,6 +121,10 @@ The backend provides several RESTful API endpoints for the frontend application:
 
 ### Payments
 - `POST /api/pay` - Process payment for a reservation
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome. Feel free to check the issues page if you want to contribute.
 
 ## 📝 License
 

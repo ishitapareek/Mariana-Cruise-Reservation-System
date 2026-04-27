@@ -1,4 +1,4 @@
-CREATE VIEW Reservation_Summary AS
+CREATE OR REPLACE VIEW uvReservationSummary AS
 SELECT r.Reservation_Id,
        r.User_Id,
        p.Full_Name,
