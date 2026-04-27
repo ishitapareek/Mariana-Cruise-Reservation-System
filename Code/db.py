@@ -1,6 +1,5 @@
 import mysql.connector
 
-
 def get_db():
     return mysql.connector.connect(
         host="localhost",
@@ -9,10 +8,9 @@ def get_db():
         database="Cruise_Reservation_System"
     )
 
-
-def call_proc(proc_name, params = None, fetch = "all"):
+def call_proc(proc_name, params=None, fetch="all"):
     db = get_db()
-    cursor = db.cursor(dictionary = True)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.callproc(proc_name, params or ())
         for result in cursor.stored_results():
@@ -24,10 +22,9 @@ def call_proc(proc_name, params = None, fetch = "all"):
         cursor.close()
         db.close()
 
-
-def execute_proc(proc_name, params = None):
+def execute_proc(proc_name, params=None):
     db = get_db()
-    cursor = db.cursor(dictionary = True)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.callproc(proc_name, params or ())
         row = None

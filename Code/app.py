@@ -5,14 +5,14 @@ from db import get_db, call_proc, execute_proc
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
-CORS(app, supports_credentials = True)
+CORS(app, supports_credentials=True)
 
 @app.route("/")
 def home(): 
     return render_template("index.html")
 
 
-@app.route("/api/register", methods = ["POST"])
+@app.route("/api/register", methods=["POST"])
 def register():
     data = request.json
     name = data.get("name")
@@ -36,7 +36,7 @@ def register():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/login", methods = ["POST"])
+@app.route("/api/login", methods=["POST"])
 def login():
     data = request.json
     email = data.get("email")
@@ -64,7 +64,7 @@ def login():
     return jsonify({"error": "Invalid credentials"}), 401
 
 
-@app.route("/api/cruises", methods = ["GET"])
+@app.route("/api/cruises", methods=["GET"])
 def get_cruises():
     cruises = call_proc('uspGetCruises')
 
@@ -77,7 +77,7 @@ def get_cruises():
     return jsonify(cruises)
 
 
-@app.route("/api/book", methods = ["POST"])
+@app.route("/api/book", methods=["POST"])
 def book():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -94,7 +94,7 @@ def book():
         return jsonify({"error": "Missing cruise_id or members"}), 400
 
     db = get_db()
-    cursor = db.cursor(dictionary = True)
+    cursor = db.cursor(dictionary=True)
 
     try:
         cursor.callproc("Create_Reservation", (session["user_id"], cruise_id, members))
@@ -127,7 +127,7 @@ def book():
         db.close()
 
 
-@app.route("/api/my-bookings", methods = ["GET"])
+@app.route("/api/my-bookings", methods=["GET"])
 def my_bookings():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -150,7 +150,7 @@ def my_bookings():
     return jsonify(bookings)
 
 
-@app.route("/api/pay", methods = ["POST"])
+@app.route("/api/pay", methods=["POST"])
 def pay():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -168,14 +168,13 @@ def pay():
         return jsonify({"error": "Reservation not found"}), 404
 
     try:
-        # Trigger after_payment auto-updates status to Confirmed
         execute_proc('Make_Payment', (reservation_id, amount))
         return jsonify({"message": "Payment successful"})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/api/cost/<int:res_id>", methods = ["GET"])
+@app.route("/api/cost/<int:res_id>", methods=["GET"])
 def get_cost(res_id):
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -189,13 +188,13 @@ def get_cost(res_id):
     return jsonify({"total": cost["Total_Cost"] if cost else 0})
 
 
-@app.route("/api/suites", methods = ["GET"])
+@app.route("/api/suites", methods=["GET"])
 def get_suites():
     suites = call_proc('uspGetSuites')
     return jsonify(suites)
 
 
-@app.route("/api/activities", methods = ["GET"])
+@app.route("/api/activities", methods=["GET"])
 def get_activities():
     activities = call_proc('uspGetActivies')
     return jsonify(activities)
@@ -248,9 +247,8 @@ def update_reservation(res_id):
     suite_nights = data.get("suite_nights", 1)
     activities = data.get("activities", [])
 
-    # Multiple writes in a single transaction — use raw connection
     db = get_db()
-    cursor = db.cursor(dictionary = True)
+    cursor = db.cursor(dictionary=True)
 
     try:
         cursor.callproc('uspUpdateReservation', (cruise_id, members, res_id))
@@ -298,7 +296,7 @@ def get_me():
     return jsonify({"user": user})
 
 
-@app.route("/api/profile", methods = ["PUT"])
+@app.route("/api/profile", methods=["PUT"])
 def update_profile():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
@@ -330,4 +328,4 @@ def update_profile():
 
 
 if __name__ == "__main__":
-    app.run(debug = True)
+    app.run(debug=True)

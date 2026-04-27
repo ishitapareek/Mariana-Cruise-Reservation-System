@@ -1,4 +1,4 @@
--- 7. Personal (users) — passwords are bcrypt hashes of 'Password123'
+-- 7. Personal (users) — passwords = Password123
 INSERT INTO Personal (Full_Name, Email, Mobile_Number, Password, Address, DOB, Gender) VALUES
   ('Aarav Sharma',    'aarav.sharma@email.com',    '9876543210', '$2b$12$WNp77AoR/2Ygb.qR4atxr.mzfexKiJgTioR3/apxFAuSJ0Am5ucDm', '123 Marine Drive, Mumbai', '1990-05-15', 'Male'),
   ('Meera Patel',     'meera.patel@email.com',     '9876543211', '$2b$12$WNp77AoR/2Ygb.qR4atxr.mzfexKiJgTioR3/apxFAuSJ0Am5ucDm', '456 MG Road, Bangalore', '1992-08-22', 'Female'),
@@ -9,12 +9,12 @@ INSERT INTO Personal (Full_Name, Email, Mobile_Number, Password, Address, DOB, G
 
 -- 8. Reservations (mix of Pending & Confirmed)
 INSERT INTO Reservation (User_Id, Cruise_Id, Status_Id, Members) VALUES
-  (1, 1, 2, 2),   -- Aarav  → Atlantic Explorer, Confirmed, 2 members
-  (2, 2, 2, 3),   -- Meera  → Desert Pearl Voyage, Confirmed, 3 members
-  (3, 3, 1, 1),   -- Rohan  → Pacific Odyssey, Pending, 1 member
-  (4, 1, 2, 4),   -- Ananya → Atlantic Explorer, Confirmed, 4 members
-  (5, 4, 1, 2),   -- Kabir  → European Escape, Pending, 2 members
-  (6, 2, 2, 2);   -- Priya  → Desert Pearl Voyage, Confirmed, 2 members
+  (1, 1, 2, 2),   -- Aarav  -> Atlantic Explorer, Confirmed, 2 members
+  (2, 2, 2, 3),   -- Meera  -> Desert Pearl Voyage, Confirmed, 3 members
+  (3, 3, 1, 1),   -- Rohan  -> Pacific Odyssey, Pending, 1 member
+  (4, 1, 2, 4),   -- Ananya -> Atlantic Explorer, Confirmed, 4 members
+  (5, 4, 1, 2),   -- Kabir  -> European Escape, Pending, 2 members
+  (6, 2, 2, 2);   -- Priya  -> Desert Pearl Voyage, Confirmed, 2 members
 
 -- 9. Passengers (additional guests per reservation)
 INSERT INTO Passengers (Reservation_Id, Full_Name) VALUES
@@ -35,30 +35,30 @@ INSERT INTO Passengers (Reservation_Id, Full_Name) VALUES
 
 -- 10. User_Suites (suite selections per reservation)
 INSERT INTO User_Suites (Reservation_Id, Suite_Code, Nights) VALUES
-  (1, 2, 9),    -- Aarav  → Ocean View Suite, 9 nights
-  (2, 3, 7),    -- Meera  → Balcony Suite, 7 nights
-  (3, 1, 10),   -- Rohan  → Interior Suite, 10 nights
-  (4, 4, 9),    -- Ananya → Royal Suite, 9 nights
-  (5, 2, 9),    -- Kabir  → Ocean View Suite, 9 nights
-  (6, 3, 7);    -- Priya  → Balcony Suite, 7 nights
+  (1, 2, 9),    -- Aarav  -> Ocean View Suite, 9 nights
+  (2, 3, 7),    -- Meera  -> Balcony Suite, 7 nights
+  (3, 1, 10),   -- Rohan  -> Interior Suite, 10 nights
+  (4, 4, 9),    -- Ananya -> Royal Suite, 9 nights
+  (5, 2, 9),    -- Kabir  -> Ocean View Suite, 9 nights
+  (6, 3, 7);    -- Priya  -> Balcony Suite, 7 nights
 
 -- 11. User_Activities (activity signups per reservation)
 INSERT INTO User_Activities (Reservation_Id, Activity_Code) VALUES
-  (1, 1),   -- Aarav  → Scuba Diving
-  (1, 4),   -- Aarav  → Spa Therapy
-  (2, 2),   -- Meera  → Wine Tasting
-  (2, 3),   -- Meera  → Casino Night
-  (3, 5),   -- Rohan  → Sky Diving Simulation
-  (4, 1),   -- Ananya → Scuba Diving
-  (4, 2),   -- Ananya → Wine Tasting
-  (4, 4),   -- Ananya → Spa Therapy
-  (5, 3),   -- Kabir  → Casino Night
-  (6, 4),   -- Priya  → Spa Therapy
-  (6, 2);   -- Priya  → Wine Tasting
+  (1, 1),   -- Aarav  -> Scuba Diving
+  (1, 4),   -- Aarav  -> Spa Therapy
+  (2, 2),   -- Meera  -> Wine Tasting
+  (2, 3),   -- Meera  -> Casino Night
+  (3, 5),   -- Rohan  -> Sky Diving Simulation
+  (4, 1),   -- Ananya -> Scuba Diving
+  (4, 2),   -- Ananya -> Wine Tasting
+  (4, 4),   -- Ananya -> Spa Therapy
+  (5, 3),   -- Kabir  -> Casino Night
+  (6, 4),   -- Priya  -> Spa Therapy
+  (6, 2);   -- Priya  -> Wine Tasting
 
 -- 12. Payments (for confirmed reservations)
 INSERT INTO Payment (Reservation_Id, Amount, Status_Id) VALUES
-  (1, 69000,  2),   -- Aarav  → Completed
-  (2, 93500,  2),   -- Meera  → Completed
-  (4, 130000, 2),   -- Ananya → Completed
-  (6, 90000,  2);   -- Priya  → Completed
+  (1, 69000,  2),   -- Aarav  -> Completed
+  (2, 93500,  2),   -- Meera  -> Completed
+  (4, 130000, 2),   -- Ananya -> Completed
+  (6, 90000,  2);   -- Priya  -> Completed
