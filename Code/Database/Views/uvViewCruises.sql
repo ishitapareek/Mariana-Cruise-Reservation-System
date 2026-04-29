@@ -1,6 +1,6 @@
 CREATE VIEW uvViewCruises AS
 SELECT Cruise_Id, 
-    cm.Cruise_Name, 
+    Cruise_Name, 
     Start_Date, 
     End_Date, 
     Price_Base
