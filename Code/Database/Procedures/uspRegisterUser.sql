@@ -14,4 +14,4 @@ BEGIN
   VALUES (p_name, p_email, p_mobile, p_password, p_address, p_dob, p_gender);
 END //
 
-DELIMITER ;
+DELIMITER ; 
