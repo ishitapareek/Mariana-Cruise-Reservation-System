@@ -1,6 +1,5 @@
 # Mariana Cruise Reservation System
 
-![Project Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-2.x-lightgrey.svg)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg)
