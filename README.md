@@ -123,7 +123,7 @@ The backend provides several RESTful API endpoints for the frontend application:
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome. Feel free to check the issues page if you want to contribute.
+Contributions, issues, and feature requests are welcome.
 
 ## 📝 License
 
